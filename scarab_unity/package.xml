@@ -1,0 +1,16 @@
+<package>
+  <name>scarab_unity</name>
+  <version>0.1.0</version>
+  <description>scarab_unity</description>
+  <maintainer email="ciajames@seas.upenn.edu">James Ciardullo</maintainer>
+  <author email="ciajames@seas.upenn.edu">James Ciardullo</author>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>arl_unity_ros_ground</build_depend>
+  <run_depend>arl_unity_ros_ground</run_depend>
+
+
+</package>
