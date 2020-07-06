@@ -1,0 +1,3 @@
+[submodule "scarab_exploration"]
+	path = scarab_exploration
+	url = https://github.com/jciardullo/scarab_exploration.git

@@ -4,6 +4,8 @@
   <arg name="ground_truth" default="true"/> <!-- publish ground truth tf tree -->
   <arg name="agent" default="husky"/>
   <arg name="laser" default="true"/>
+  <arg name="frontier_exp" default="true" />
+  <arg name="world" default="custom"/>
 
   <!-- tf args -->
   <arg name="base_frame"    default="$(arg agent)/base" />
@@ -15,12 +17,12 @@
 
   <!-- start unity -->
   <include file="$(find arl_unity_ros_ground)/launch/simulator_with_husky.launch">
-    <arg name="simulator_param_file" value="$(find scarab_unity)/config/tutorial.yaml"/>
+    <arg name="simulator_param_file" value="$(find scarab_unity)/config/$(arg world).yaml"/>
   </include>
 
   <!-- start rviz -->
   <node name="rviz" pkg="rviz" type="rviz"
-        args="-d $(find scarab_unity)/launch/scarab.rviz"/>
+        args="-d $(find scarab_unity)/launch/scarab.rviz" output="screen"/>
 
   <!-- publish static transform between map_frame and odom_frame -->
   <node pkg="tf2_ros"
@@ -56,11 +58,13 @@
       type="pointcloud_to_laserscan_node"
       launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " >
       <remap from="cloud_in" to="lidar_points" />
+      <param name="range_max" value="100" />
+      <param name="use_inf" value="false" />
     </node>
 
     <!-- convert rviz goal msg to action -->
     <node name="goal_to_action" pkg="hfn" type="goal_to_action.py">
-      <remap from="goal" to="move_base_simple/goal"/>
+      <remap from="goal" to="move_base_simple/goal" />
     </node>
 
     <!-- navigation via hfn -->
@@ -87,6 +91,22 @@
       <param name="base_frame" value="$(arg base_frame)" />
       <param name="odom_frame" value="$(arg odom_frame)"/>
       <param name="map_frame"  value="$(arg map_frame)" />
+    </node>
+
+    <!-- start exploration -->
+    <node pkg="explore_lite" type="explore" respawn="false" name="explore" output="screen" if="$(arg frontier_exp)">
+      <remap from="move_base" to="move"/>
+      <param name="robot_base_frame" value="$(arg base_frame)"/>
+      <param name="costmap_topic" value="map"/>
+      <param name="costmap_updates_topic" value="map_updates"/>
+      <param name="visualize" value="true"/>
+      <param name="planner_frequency" value="0.33"/>
+      <param name="progress_timeout" value="30.0"/>
+      <param name="potential_scale" value="3.0"/>
+      <param name="orientation_scale" value="0.0"/>
+      <param name="gain_scale" value="1.0"/>
+      <param name="transform_tolerance" value="0.3"/>
+      <param name="min_frontier_size" value="0.75"/>
     </node>
 
   </group>
