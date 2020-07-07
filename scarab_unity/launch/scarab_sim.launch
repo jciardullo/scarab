@@ -5,7 +5,11 @@
   <arg name="agent" default="husky"/>
   <arg name="laser" default="true"/>
   <arg name="frontier_exp" default="true" />
-  <arg name="world" default="custom"/>
+  <arg name="near_frontier" default="true" />
+  <arg name="world" default="tutorial"/>
+
+  <arg name="explore_package" default="explore_lite" unless="$(arg near_frontier)" />
+  <arg name="explore_package" default="explore_lite_near" if="$(arg near_frontier)" />
 
   <!-- tf args -->
   <arg name="base_frame"    default="$(arg agent)/base" />
@@ -22,7 +26,9 @@
 
   <!-- start rviz -->
   <node name="rviz" pkg="rviz" type="rviz"
-        args="-d $(find scarab_unity)/launch/scarab.rviz" output="screen"/>
+        args="-d $(find scarab_unity)/launch/scarab.rviz" output="screen" unless="$(arg frontier_exp)"/>
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find scarab_unity)/launch/explore.rviz" output="screen" if="$(arg frontier_exp)"/>
 
   <!-- publish static transform between map_frame and odom_frame -->
   <node pkg="tf2_ros"
@@ -94,7 +100,7 @@
     </node>
 
     <!-- start exploration -->
-    <node pkg="explore_lite" type="explore" respawn="false" name="explore" output="screen" if="$(arg frontier_exp)">
+    <node pkg="$(arg explore_package)" type="explore" respawn="false" name="explore" output="screen" if="$(arg frontier_exp)">
       <remap from="move_base" to="move"/>
       <param name="robot_base_frame" value="$(arg base_frame)"/>
       <param name="costmap_topic" value="map"/>
