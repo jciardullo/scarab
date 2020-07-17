@@ -8,6 +8,9 @@
   <arg name="near_frontier" default="true" />
   <arg name="world" default="tutorial"/>
 
+  <arg name="rank" default="true" if="$(arg frontier_exp)"/>
+  <arg name="rank" default="false" unless="$(arg frontier_exp)"/>
+
   <arg name="explore_package" default="explore_lite" unless="$(arg near_frontier)" />
   <arg name="explore_package" default="explore_lite_near" if="$(arg near_frontier)" />
 
@@ -76,15 +79,16 @@
     <!-- navigation via hfn -->
     <node name="hfn_navigation" pkg="hfn" type="hfn" output="screen">
       <remap from="odom" to="odometry/filtered"/>
+      <param name="stop_on_preempt" value="false" />
       <param name="base_frame_id"      value="$(arg base_frame)"/>
       <param name="map_frame_id"       value="$(arg map_frame)" />
       <param name="cost_occ_prob"      value="0.7" />
       <param name="cost_occ_dist"      value="0.7" />
       <param name="max_occ_dist"       value="1.0" />
       <param name="lethal_occ_dist"    value="0.2" />
-      <param name="axle_width"         value="0.57" />
-      <param name="robot_radius"       value="0.52" />
-      <param name="safety_margin"      value="0.1" />
+      <param name="axle_width"         value="0.6" />
+      <param name="robot_radius"       value="0.5" />
+      <param name="safety_margin"      value="0.05" />
       <param name="social_margin"      value="0.2" />
       <param name="goal_tolerance_ang" value=".05"/> <!--default 2pi-->
       <param name="goal_tolerance"     value=".05"/>     <!--default .2m-->
@@ -97,6 +101,7 @@
       <param name="base_frame" value="$(arg base_frame)" />
       <param name="odom_frame" value="$(arg odom_frame)"/>
       <param name="map_frame"  value="$(arg map_frame)" />
+      <param name="map_update_interval" value="1.0" />
     </node>
 
     <!-- start exploration -->
@@ -106,14 +111,21 @@
       <param name="costmap_topic" value="map"/>
       <param name="costmap_updates_topic" value="map_updates"/>
       <param name="visualize" value="true"/>
-      <param name="planner_frequency" value="0.33"/>
+      <param name="planner_frequency" value="1.0"/>
       <param name="progress_timeout" value="30.0"/>
       <param name="potential_scale" value="3.0"/>
       <param name="orientation_scale" value="0.0"/>
       <param name="gain_scale" value="1.0"/>
       <param name="transform_tolerance" value="0.3"/>
-      <param name="min_frontier_size" value="0.75"/>
+      <param name="min_frontier_size" value="1"/>
     </node>
+
+    <!-- start ranking node and load in truth map-->
+    <node pkg="explore_rank" type="exploration_ranker_node" name="exploration_ranker" output="screen" if="$(arg rank)" launch-prefix="gnome-terminal --"/>
+    <node pkg="map_server" type="map_server" name="map_loader" args="$(find explore_rank)/true_map.yaml" output="screen" if="$(arg rank)">
+      <remap from="map" to="true_map"/>
+    </node>
+    <node pkg="rqt_plot" type="rqt_plot" name="rqt_plot" args="/husky/grid_total/data" if="$(arg rank)"/>
 
   </group>
 
