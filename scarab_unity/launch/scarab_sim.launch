@@ -120,12 +120,9 @@
       <param name="min_frontier_size" value="1"/>
     </node>
 
-    <!-- start ranking node and load in truth map-->
-    <node pkg="explore_rank" type="exploration_ranker_node" name="exploration_ranker" output="screen" if="$(arg rank)" launch-prefix="gnome-terminal --"/>
-    <node pkg="map_server" type="map_server" name="map_loader" args="$(find explore_rank)/true_map.yaml" output="screen" if="$(arg rank)">
-      <remap from="map" to="true_map"/>
-    </node>
-    <node pkg="rqt_plot" type="rqt_plot" name="rqt_plot" args="/husky/grid_total/data" if="$(arg rank)"/>
+    <!-- start rosbag-->
+    <node pkg="rosbag" type="record" name="rosbag_record_exploration"
+           args="record -o $(find explore_rank)/bags/explore_ /husky/explore/chatter /husky/map /husky/odometry/filtered /husky/grid_total/data" />
 
   </group>
 
