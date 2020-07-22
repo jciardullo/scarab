@@ -7,6 +7,7 @@
   <arg name="frontier_exp" default="true" />
   <arg name="near_frontier" default="true" />
   <arg name="world" default="tutorial"/>
+  <arg name="record" default="false" />
 
   <arg name="rank" default="true" if="$(arg frontier_exp)"/>
   <arg name="rank" default="false" unless="$(arg frontier_exp)"/>
@@ -122,7 +123,8 @@
 
     <!-- start rosbag-->
     <node pkg="rosbag" type="record" name="rosbag_record_exploration"
-           args="record -o $(find explore_rank)/bags/explore_ /husky/explore/chatter /husky/map /husky/odometry/filtered /husky/grid_total/data" />
+           args="record -o $(find explore_rank)/bags/explore_ /husky/explore/chatter
+           /husky/map /husky/odometry/filtered /husky/grid_total/data" if="$(arg record)" />
 
   </group>
 
