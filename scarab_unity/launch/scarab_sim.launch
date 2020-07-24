@@ -63,10 +63,8 @@
           if="$(arg laser)"/> -->
 
     <!-- pointcloud to laserscan -->
-    <arg name="node_start_delay" default="10.0" />
     <node name="cloud_to_laser" pkg="pointcloud_to_laserscan"
-      type="pointcloud_to_laserscan_node"
-      launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " >
+      type="pointcloud_to_laserscan_node" >
       <remap from="cloud_in" to="lidar_points" />
       <param name="range_max" value="100" />
       <param name="use_inf" value="false" />
